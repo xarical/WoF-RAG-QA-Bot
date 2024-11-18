@@ -1,0 +1,7 @@
+chromadb
+langchain
+langchain-chroma
+langchain-community
+langchain-groq
+langchain-google-genai
+rank_bm25
