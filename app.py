@@ -45,7 +45,10 @@ class CustomEnsembleRetriever(EnsembleRetriever):
                 temp = list(documents)
                 documents = []
                 for num in filtered_doc_nums:
-                    documents.append(temp[int(num)-1])
+                    try:
+                      documents.append(temp[int(num)-1])
+                    except ValueError:
+                      pass
 
         return documents
 
@@ -64,7 +67,7 @@ Context: {context}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
 
 rephrase_template = """Rephrase this query to be more easily searchable in a google search. Do not add things to the query. Just rephrase the query to be clearer and simpler.
-Do not respond with ANYTHING EXCEPT THE REPHRASED QUERY.
+DO NOT PREFACE YOUR MESSAGE WITH ANYTHING. DO NOT RESPOND WITH ANYTHING EXCEPT THE REPHRASED QUERY.
 
 Example query: whats morrowseer like and what does he want
 Response: What is Morrowseer's personality and what are his motivations?
@@ -73,7 +76,7 @@ Query to process: {query}
 """
 
 judge_template = """Provide the numbers of the documents that are EXTREMELY LIKELY to be relevant to the given query. Seperate the numbers by spaces.
-Do not respond with ANYTHING EXCEPT THE NUMBERS.
+DO NOT PREFACE YOUR MESSAGE WITH ANYTHING. DO NOT RESPOND WITH ANYTHING EXCEPT THE NUMBERS.
 If there are no relevant documents, then respond with a 0.
 If there is an exact duplicate of a document, only return the number of one of them.
 
@@ -150,16 +153,16 @@ demo = gr.ChatInterface(
     description="A Llama3 8b Q&A bot powered by Groq, using RAG (Retrieval Augmented Generation) on documents from the Wings of Fire wiki. It utilizes LLMs to rephrase the user's query and judge and filter retrieved documents for relevance. Note that this is just a demo; the bot knows a decent amount but is still prone to hallucination or saying that it doesn't know. It performs best with Q&A and analyzing canon characters or events. If responses are unsatisfactory, try tweaking the values in the additional inputs section at the bottom.",
     additional_inputs=[
         gr.Textbox(value=system_prompt, label="System message"),
-        gr.Slider(minimum=0, maximum=3, value=2, step=1, label="Number of documents to retrieve for bm25 "),
-        gr.Slider(minimum=0, maximum=3, value=2, step=1, label="Number of documents to retrieve for vectorstore similarity"),
+        gr.Slider(minimum=1, maximum=4, value=3, step=1, label="Number of documents to retrieve for bm25"),
+        gr.Slider(minimum=1, maximum=4, value=3, step=1, label="Number of documents to retrieve for vectorstore similarity"),
         gr.Checkbox(label="Rephrase query?", value=True),
         gr.Checkbox(label="Judge returned documents?", value=True),
     ],
     examples=[
-        ["What is Wings of Fire"], 
-        ["What are the implications of the dragonet prophecy"], 
-        ["What are the motivations of Queen Scarlet"], 
-        ["Write an essay about the role Qibli plays in Wings of Fire"], 
+        ["What is Wings of Fire"],
+        ["What is the dragonet prophecy"],
+        ["Who is Queen Scarlet and what are her motivations"],
+        ["Write an essay about the role does Qibli plays in Wings of Fire"],
         ["Who is Foxglove"]
     ],
     cache_examples=False,
